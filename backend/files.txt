@@ -1,0 +1,7 @@
+总计 40
+-rwxrwxr-x 1 maruiyang maruiyang 16704  7月  3 16:57 executor
+-rw-rw-r-- 1 maruiyang maruiyang  4148  7月  3 16:57 executor.c
+-rw-rw-r-- 1 maruiyang maruiyang     0  7月  3 16:58 files.txt
+-rw-rw-r-- 1 maruiyang maruiyang  1913  7月  3 16:50 server.py
+-rw-rw-r-- 1 maruiyang maruiyang    35  7月  3 16:27 test.py
+drwxrwxr-x 5 maruiyang maruiyang  4096  7月  3 16:05 venv
