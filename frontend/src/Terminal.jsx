@@ -1,33 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
 
-function Terminal({ ws, log, path, onClose }) {
-  const [inputValue, setInputValue] = useState('');
+function Terminal({ ws, log, path, onClose, inputValue, setInputValue }) {
   const logAreaRef = useRef(null);
   const nodeRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // 自动滚动到日志底部
   useEffect(() => {
     if (logAreaRef.current) {
       logAreaRef.current.scrollTop = logAreaRef.current.scrollHeight;
     }
   }, [log]);
 
-  // 发送命令
+  useEffect(() => {
+    if(inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   const sendMessage = () => {
-    if (inputValue && ws.current?.readyState === WebSocket.OPEN) {
-      // 发送JSON格式的消息
+    if (inputValue.trim() && ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({ action: 'runCommand', payload: inputValue }));
       setInputValue('');
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      ws.current.send(JSON.stringify({ action: 'autoComplete', payload: inputValue }));
+    }
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
   return (
     <Draggable nodeRef={nodeRef} handle=".title-bar" cancel=".terminal-content">
-      <div ref={nodeRef} className="terminal-window">
+      <div ref={nodeRef} className="terminal-window" onClick={() => inputRef.current?.focus()}>
         <div className="title-bar">
           {path}
-          {/* 这里是修改过的地方，确保它使用的是img标签 */}
           <img 
             src="/icons/close.png" 
             alt="Close" 
@@ -38,8 +50,14 @@ function Terminal({ ws, log, path, onClose }) {
         <div className="terminal-content">
           <pre className="terminal-log-area" ref={logAreaRef}>{log.join('\n')}</pre>
           <div className="terminal-input-area">
-            <input type="text" value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} placeholder="$" />
-            <button onClick={sendMessage}>执行</button>
+            <span>$</span>
+            <input 
+              ref={inputRef}
+              type="text" 
+              value={inputValue} 
+              onChange={e => setInputValue(e.target.value)} 
+              onKeyDown={handleKeyDown}
+            />
           </div>
         </div>
       </div>
